@@ -669,6 +669,10 @@ class AgentMacSwLearningModeTest : public AgentMacLearningTest {
 
 class AgentMacLearningStaticEntriesTest : public AgentMacLearningTest {
  protected:
+  // SAI genPortVlanCfg() forces SOFTWARE L2 learning when the deployed
+  // agent config is SAI. These tests then call setupHelper(HARDWARE)
+  // after that first config is applied. SaiSwitch forbids changing L2
+  // mode after CONFIGURED, so lock HARDWARE here; setupHelper is a no-op.
   cfg::SwitchConfig initialConfig(
       const AgentEnsemble& ensemble) const override {
     auto cfg = AgentMacLearningTest::initialConfig(ensemble);
