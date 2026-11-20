@@ -669,6 +669,13 @@ class AgentMacSwLearningModeTest : public AgentMacLearningTest {
 
 class AgentMacLearningStaticEntriesTest : public AgentMacLearningTest {
  protected:
+  cfg::SwitchConfig initialConfig(
+      const AgentEnsemble& ensemble) const override {
+    auto cfg = AgentMacLearningTest::initialConfig(ensemble);
+    cfg.switchSettings()->l2LearningMode() = cfg::L2LearningMode::HARDWARE;
+    return cfg;
+  }
+
   void addOrUpdateMacEntry(MacEntryType type) {
     applyNewState([&](const std::shared_ptr<SwitchState>& in) {
       auto newState = in->clone();
