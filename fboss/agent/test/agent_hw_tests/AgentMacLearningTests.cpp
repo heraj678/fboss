@@ -669,25 +669,8 @@ class AgentMacSwLearningModeTest : public AgentMacLearningTest {
 
 class AgentMacLearningStaticEntriesTest : public AgentMacLearningTest {
  protected:
-  // VerifyStaticMacEntryAdd and VerifyStaticDynamicTransformations require
-  // HARDWARE L2 learning: they install a STATIC MAC and check it does not
-  // age. setupHelper(HARDWARE) runs in the test setup() lambda after the
-  // switch is already CONFIGURED.
-  //
-  // On SAI, parent initialConfig() -> oneL3IntfTwoPortConfig() ->
-  // genPortVlanCfg() sets l2LearningMode to SOFTWARE when
-  // deployedConfigIsSai() is true (non-empty sw.sdkVersion.saiSdk in
-  // --config, which Meta run_test.py always injects). After that first
-  // config is applied, SaiSwitch::l2LearningModeChangeProhibited() forbids
-  // changing L2 mode. setupHelper() then calls setL2LearningMode(HARDWARE)
-  // and SaiSwitch throws:
-  //   "Chaging L2 learning mode after initial config application is not
-  //    permitted"
-  //
-  // Override initialConfig so first config is already HARDWARE. Then
-  // setL2LearningMode(HARDWARE) is a no-op (mode already matches) and the
-  // throw is avoided. Do not change genPortVlanCfg()'s SAI SOFTWARE default
-  // or the SaiSwitch check; those apply to other tests.
+  // Force HARDWARE L2 in first config. On SAI, genPortVlanCfg() applies
+  // SOFTWARE, then setupHelper(HARDWARE) after CONFIGURED is rejected.
   cfg::SwitchConfig initialConfig(
       const AgentEnsemble& ensemble) const override {
     auto cfg = AgentMacLearningTest::initialConfig(ensemble);
