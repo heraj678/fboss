@@ -493,10 +493,9 @@ void SaiSwitchManager::resetLoadBalancer() {
   // hash fields. This behavior is incorrect and will be fixed in the long
   // run (CS00012187635). In the meanwhile, clear and set desired fields as a
   // workaround.
-  if (platform_->getAsic()->isSupported(
-          HwAsic::Feature::SAI_HASH_FIELDS_CLEAR_BEFORE_SET)) {
-    switch_->setOptionalAttribute(HashAttrT{SAI_NULL_OBJECT_ID});
-  }
+  // Always unbind HASH before remove_hash; SAI returns OBJECT_IN_USE if still bound.
+  // Do not gate on SAI_HASH_FIELDS_CLEAR_BEFORE_SET (Broadcom-only; false on Cisco/GR2).
+  switch_->setOptionalAttribute(HashAttrT{SAI_NULL_OBJECT_ID});
 }
 
 void SaiSwitchManager::addOrUpdateEcmpLoadBalancer(
